@@ -1,0 +1,1452 @@
+<!DOCTYPE html>
+<html lang="pt-BR" class="scroll-smooth">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>EcoPira — Sustentabilidade & ODS 14 e 15 em Piracicaba-SP</title>
+  <meta name="description" content="Plataforma ambiental de Piracicaba-SP alinhada às ODS 14 (Vida na Água) e ODS 15 (Vida Terrestre). Encontre ecopontos, eventos, dicas sustentáveis e notícias." />
+
+  <!-- Tailwind CSS -->
+  <script src="https://cdn.tailwindcss.com"></script>
+
+  <!-- Google Fonts: Inter & Poppins -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Poppins:wght@600;700;800&display=swap" rel="stylesheet" />
+
+  <!-- Font Awesome Icons -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" />
+
+  <!-- Leaflet CSS & JS (Mapa Interativo Real de Piracicaba-SP) -->
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" crossorigin="" />
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" crossorigin=""></script>
+
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            ocean: '#0284C7',
+            oceanDark: '#0369A1',
+            forest: '#059669',
+            forestDark: '#047857',
+            emeraldDeep: '#064E3B',
+            leafLight: '#ECFDF5',
+            waterLight: '#F0F9FF'
+          },
+          fontFamily: {
+            sans: ['Inter', 'sans-serif'],
+            display: ['Poppins', 'sans-serif']
+          }
+        }
+      }
+    };
+  </script>
+
+  <style>
+    body {
+      font-family: 'Inter', sans-serif;
+      background-color: #F8FAFC;
+      color: #0F172A;
+      overflow-x: hidden;
+    }
+    h1, h2, h3, .font-display {
+      font-family: 'Poppins', sans-serif;
+    }
+    /* Ajustes do Mapa Leaflet */
+    #piracicabaMap {
+      z-index: 10;
+    }
+    .custom-leaflet-pin {
+      background: transparent;
+      border: none;
+    }
+    .leaflet-popup-content-wrapper {
+      border-radius: 16px;
+      padding: 4px;
+      box-shadow: 0 10px 25px -5px rgba(15, 23, 42, 0.15);
+    }
+    .leaflet-popup-content {
+      margin: 12px 14px;
+      font-family: 'Inter', sans-serif;
+    }
+  </style>
+</head>
+<body class="antialiased selection:bg-forest selection:text-white">
+
+  <!-- ===================================================================== -->
+  <!-- 1. HEADER MODERNO & RESPONSIVO                                        -->
+  <!-- ===================================================================== -->
+  <header class="sticky top-0 z-40 bg-white/95 backdrop-blur-md border-b border-slate-200/80 shadow-sm">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 md:h-20 flex items-center justify-between gap-4">
+      
+      <!-- Logotipo EcoPira -->
+      <a href="#inicio" class="flex items-center gap-3 group focus:outline-none">
+        <div class="w-10 h-10 md:w-11 md:h-11 rounded-xl bg-gradient-to-br from-ocean to-forest flex items-center justify-center text-white shadow-md shadow-forest/20 group-hover:scale-105 transition">
+          <i class="fa-solid fa-leaf text-base md:text-lg"></i>
+          <i class="fa-solid fa-droplet text-xs -ml-1 mt-2 text-sky-200"></i>
+        </div>
+        <div>
+          <div class="flex items-center gap-2">
+            <span class="font-display font-extrabold text-xl md:text-2xl tracking-tight text-slate-900">
+              Eco<span class="text-forest">Pira</span>
+            </span>
+            <span class="hidden sm:inline-flex items-center gap-1 text-[10px] font-extrabold uppercase tracking-wider px-2 py-0.5 rounded-full bg-gradient-to-r from-sky-100 to-emerald-100 text-slate-800 border border-emerald-200/80">
+              <span class="text-ocean">ODS 14</span> & <span class="text-forest">15</span>
+            </span>
+          </div>
+          <p class="text-[11px] text-slate-500 font-medium leading-none mt-0.5">Piracicaba • São Paulo</p>
+        </div>
+      </a>
+
+      <!-- Navegação Desktop -->
+      <nav aria-label="Navegação Principal" class="hidden lg:flex items-center gap-1 bg-slate-100/90 p-1.5 rounded-2xl">
+        <a href="#inicio" class="px-3.5 py-2 rounded-xl text-sm font-semibold text-slate-700 hover:bg-white hover:text-forest transition">Início & ODS</a>
+        <a href="#missao" class="px-3.5 py-2 rounded-xl text-sm font-semibold text-slate-700 hover:bg-white hover:text-forest transition">Missão</a>
+        <a href="#coleta" class="px-3.5 py-2 rounded-xl text-sm font-semibold text-slate-700 hover:bg-white hover:text-forest transition">Pontos de Coleta</a>
+        <a href="#eventos" class="px-3.5 py-2 rounded-xl text-sm font-semibold text-slate-700 hover:bg-white hover:text-ocean transition">Eventos</a>
+        <a href="#dicas" class="px-3.5 py-2 rounded-xl text-sm font-semibold text-slate-700 hover:bg-white hover:text-forest transition">Dicas & Checklist</a>
+        <a href="#noticias" class="px-3.5 py-2 rounded-xl text-sm font-semibold text-slate-700 hover:bg-white hover:text-ocean transition">Notícias</a>
+      </nav>
+
+      <!-- Botões Ação & Menu Hambúrguer Mobile -->
+      <div class="flex items-center gap-2.5">
+        <a href="#coleta" class="hidden sm:inline-flex items-center gap-2 bg-forest hover:bg-forestDark text-white text-sm font-semibold px-4 py-2.5 rounded-xl shadow-sm shadow-forest/20 transition">
+          <i class="fa-solid fa-location-dot"></i>
+          <span>Encontrar Ecoponto</span>
+        </a>
+
+        <button id="mobileMenuBtn" aria-label="Abrir menu de navegação" aria-expanded="false" class="lg:hidden w-11 h-11 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-800 flex items-center justify-center transition">
+          <i id="mobileMenuIcon" class="fa-solid fa-bars text-lg"></i>
+        </button>
+      </div>
+    </div>
+
+    <!-- Menu Mobile Expansível -->
+    <div id="mobileMenu" class="hidden lg:hidden bg-white border-t border-slate-200 px-4 pt-3 pb-5 space-y-1.5 shadow-lg">
+      <div class="pb-2 mb-2 border-b border-slate-100 flex items-center justify-between">
+        <span class="text-xs font-bold text-slate-500">Navegação EcoPira</span>
+        <span class="text-[11px] font-extrabold px-2.5 py-0.5 rounded-full bg-leafLight text-forest">ODS 14 & 15 ONU</span>
+      </div>
+      <a href="#inicio" onclick="closeMobileMenu()" class="block px-4 py-2.5 rounded-xl text-sm font-semibold text-slate-700 hover:bg-leafLight hover:text-forest">Início & ODS</a>
+      <a href="#missao" onclick="closeMobileMenu()" class="block px-4 py-2.5 rounded-xl text-sm font-semibold text-slate-700 hover:bg-leafLight hover:text-forest">Nossa Missão & Metas</a>
+      <a href="#coleta" onclick="closeMobileMenu()" class="block px-4 py-2.5 rounded-xl text-sm font-semibold text-slate-700 hover:bg-leafLight hover:text-forest">Pontos de Coleta & Ecopontos</a>
+      <a href="#eventos" onclick="closeMobileMenu()" class="block px-4 py-2.5 rounded-xl text-sm font-semibold text-slate-700 hover:bg-waterLight hover:text-ocean">Eventos em Piracicaba</a>
+      <a href="#dicas" onclick="closeMobileMenu()" class="block px-4 py-2.5 rounded-xl text-sm font-semibold text-slate-700 hover:bg-leafLight hover:text-forest">Dicas & Meu Impacto</a>
+      <a href="#noticias" onclick="closeMobileMenu()" class="block px-4 py-2.5 rounded-xl text-sm font-semibold text-slate-700 hover:bg-waterLight hover:text-ocean">Notícias da Natureza</a>
+      <div class="pt-2">
+        <a href="#coleta" onclick="closeMobileMenu()" class="w-full flex items-center justify-center gap-2 bg-forest text-white text-sm font-bold py-3 rounded-xl shadow">
+          <i class="fa-solid fa-map-location-dot"></i> Ver Ecopontos Próximos
+        </a>
+      </div>
+    </div>
+  </header>
+
+  <main>
+    <!-- =================================================================== -->
+    <!-- 2. HERO SECTION IMPACTANTE                                          -->
+    <!-- =================================================================== -->
+    <section id="inicio" class="relative overflow-hidden bg-gradient-to-br from-slate-900 via-emeraldDeep to-oceanDark text-white">
+      <!-- Elementos decorativos de fundo -->
+      <div class="absolute -top-24 -right-24 w-96 h-96 rounded-full bg-ocean/30 blur-3xl pointer-events-none"></div>
+      <div class="absolute -bottom-24 -left-24 w-96 h-96 rounded-full bg-forest/30 blur-3xl pointer-events-none"></div>
+
+      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-14 md:py-20 lg:py-24 relative z-10">
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-10 lg:gap-12 items-center">
+          
+          <!-- Texto Principal -->
+          <div class="lg:col-span-7 space-y-6">
+            <div class="inline-flex flex-wrap items-center gap-2 bg-white/10 backdrop-blur-md border border-white/20 px-4 py-1.5 rounded-full text-xs sm:text-sm font-semibold text-emerald-200">
+              <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
+              <span>Iniciativa Socioambiental • Piracicaba - SP</span>
+            </div>
+
+            <h1 class="text-3xl sm:text-4xl lg:text-5xl font-extrabold leading-tight tracking-tight">
+              Cuidando do <span class="text-sky-300">Rio Piracicaba</span> e da nossa <span class="text-emerald-300">Mata Atlântica</span> com tecnologia.
+            </h1>
+
+            <p class="text-base sm:text-lg text-slate-200 leading-relaxed max-w-2xl">
+              O <strong>EcoPira</strong> conecta moradores de Piracicaba a ecopontos oficiais, mutirões ecológicos e guias práticos alinhados às metas da ONU: <strong>ODS 14 (Vida na Água)</strong> e <strong>ODS 15 (Vida Terrestre)</strong>.
+            </p>
+
+            <div class="flex flex-col sm:flex-row gap-3.5 pt-2">
+              <a href="#coleta" class="inline-flex items-center justify-center gap-2.5 bg-forest hover:bg-forestDark text-white font-bold text-sm sm:text-base px-6 py-3.5 rounded-2xl shadow-lg shadow-emerald-950/40 transition">
+                <i class="fa-solid fa-map-location-dot"></i>
+                <span>Localizar Pontos de Coleta</span>
+              </a>
+              <a href="#eventos" class="inline-flex items-center justify-center gap-2.5 bg-white/10 hover:bg-white/20 backdrop-blur-sm border border-white/25 text-white font-semibold text-sm sm:text-base px-6 py-3.5 rounded-2xl transition">
+                <i class="fa-solid fa-calendar-check text-sky-300"></i>
+                <span>Participar de Mutirões</span>
+              </a>
+            </div>
+          </div>
+
+          <!-- Cards Destaque ODS 14 e ODS 15 -->
+          <div class="lg:col-span-5 space-y-4">
+            <div class="bg-white/10 backdrop-blur-md border border-white/20 rounded-3xl p-6 hover:bg-white/15 transition">
+              <div class="flex items-start gap-4">
+                <div class="w-14 h-14 shrink-0 rounded-2xl bg-[#0A97D9] flex flex-col items-center justify-center text-white font-extrabold shadow-md">
+                  <span class="text-lg leading-none">14</span>
+                  <i class="fa-solid fa-water text-sm mt-1"></i>
+                </div>
+                <div>
+                  <span class="text-xs font-bold uppercase tracking-wider text-sky-300">ONU • Objetivo 14</span>
+                  <h2 class="text-lg font-bold text-white mt-0.5">Vida na Água & Bacia PCJ</h2>
+                  <p class="text-sm text-slate-200/90 mt-1.5 leading-relaxed">
+                    Prevenção à poluição hídrica através do descarte correto de óleo de cozinha, plásticos e resíduos urbanos antes que atinjam nossos ribeirões e o Rio Piracicaba.
+                  </p>
+                </div>
+              </div>
+            </div>
+
+            <div class="bg-white/10 backdrop-blur-md border border-white/20 rounded-3xl p-6 hover:bg-white/15 transition">
+              <div class="flex items-start gap-4">
+                <div class="w-14 h-14 shrink-0 rounded-2xl bg-[#56C02B] flex flex-col items-center justify-center text-white font-extrabold shadow-md">
+                  <span class="text-lg leading-none">15</span>
+                  <i class="fa-solid fa-tree text-sm mt-1"></i>
+                </div>
+                <div>
+                  <span class="text-xs font-bold uppercase tracking-wider text-emerald-300">ONU • Objetivo 15</span>
+                  <h2 class="text-lg font-bold text-white mt-0.5">Vida Terrestre & Biodiversidade</h2>
+                  <p class="text-sm text-slate-200/90 mt-1.5 leading-relaxed">
+                    Proteção de matas ciliares, redução de descarte clandestino em áreas verdes e apoio ao reflorestamento urbano em parques como o Monte Alegre e Engenho Central.
+                  </p>
+                </div>
+              </div>
+            </div>
+          </div>
+
+        </div>
+
+        <!-- Indicadores Reais de Impacto Local -->
+        <div class="grid grid-cols-2 lg:grid-cols-4 gap-4 mt-12 pt-10 border-t border-white/15">
+          <div class="bg-white/5 backdrop-blur-sm rounded-2xl p-4 sm:p-5 border border-white/10">
+            <p class="text-2xl sm:text-3xl font-extrabold text-emerald-300">06+</p>
+            <p class="text-xs sm:text-sm text-slate-300 mt-1">Ecopontos e pontos mapeados em Piracicaba</p>
+          </div>
+          <div class="bg-white/5 backdrop-blur-sm rounded-2xl p-4 sm:p-5 border border-white/10">
+            <p class="text-2xl sm:text-3xl font-extrabold text-sky-300">25 mil L</p>
+            <p class="text-xs sm:text-sm text-slate-300 mt-1">De água preservados por litro de óleo reciclado</p>
+          </div>
+          <div class="bg-white/5 backdrop-blur-sm rounded-2xl p-4 sm:p-5 border border-white/10">
+            <p class="text-2xl sm:text-3xl font-extrabold text-emerald-300">100%</p>
+            <p class="text-xs sm:text-sm text-slate-300 mt-1">Gratuito e acessível para toda a comunidade</p>
+          </div>
+          <div class="bg-white/5 backdrop-blur-sm rounded-2xl p-4 sm:p-5 border border-white/10">
+            <p class="text-2xl sm:text-3xl font-extrabold text-sky-300">ODS 14 & 15</p>
+            <p class="text-xs sm:text-sm text-slate-300 mt-1">Alinhado à Agenda 2030 das Nações Unidas</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- =================================================================== -->
+    <!-- 3. NOSSA MISSÃO & METAS ODS (INTERATIVO)                            -->
+    <!-- =================================================================== -->
+    <section id="missao" class="py-16 md:py-20 bg-white border-b border-slate-200/70">
+      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="max-w-3xl mx-auto text-center mb-12">
+          <span class="inline-block text-xs font-extrabold uppercase tracking-wider text-forest bg-leafLight px-3.5 py-1.5 rounded-full mb-3">
+            Propósito & Agenda 2030
+          </span>
+          <h2 class="text-2xl sm:text-3xl lg:text-4xl font-extrabold text-slate-900">
+            Nossa Missão & Metas da ONU
+          </h2>
+          <p class="text-sm sm:text-base text-slate-600 mt-3 leading-relaxed">
+            Acreditamos que a informação acessível transforma hábitos. Clique nos pilares abaixo para explorar como o EcoPira aplica as metas globais na realidade de Piracicaba-SP.
+          </p>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+          <!-- Card Pilar 1 -->
+          <div onclick="toggleMissionCard(this)" class="cursor-pointer group bg-slate-50 hover:bg-waterLight/50 rounded-3xl p-7 border border-slate-200/80 hover:border-ocean transition flex flex-col justify-between">
+            <div>
+              <div class="w-12 h-12 rounded-2xl bg-ocean text-white flex items-center justify-center text-xl mb-5 shadow-md shadow-ocean/20">
+                <i class="fa-solid fa-droplet-slash"></i>
+              </div>
+              <span class="text-xs font-bold uppercase text-ocean">Meta ODS 14.1</span>
+              <h3 class="text-xl font-bold text-slate-900 mt-1 mb-2.5">Redução da Poluição Hídrica</h3>
+              <p class="text-sm text-slate-600 leading-relaxed">
+                Prevenir e reduzir significativamente a poluição de rios e oceanos causada por atividades terrestres, como detritos plásticos e escoamento de óleo.
+              </p>
+              <div class="mission-extra hidden mt-4 pt-4 border-t border-sky-200/70 text-xs text-slate-700 space-y-1.5">
+                <p class="font-bold text-oceanDark">Como atuamos em Piracicaba:</p>
+                <p>• Mapeamento de entrega de óleo saturado e recicláveis secos para evitar descarte em bueiros que deságuam no Rio Piracicaba.</p>
+              </div>
+            </div>
+            <div class="mt-5 pt-3 flex items-center justify-between text-xs font-bold text-ocean">
+              <span class="mission-toggle-label">Clique para ver ação local</span>
+              <i class="fa-solid fa-chevron-down transition-transform"></i>
+            </div>
+          </div>
+
+          <!-- Card Pilar 2 -->
+          <div onclick="toggleMissionCard(this)" class="cursor-pointer group bg-slate-50 hover:bg-leafLight/60 rounded-3xl p-7 border border-slate-200/80 hover:border-forest transition flex flex-col justify-between">
+            <div>
+              <div class="w-12 h-12 rounded-2xl bg-forest text-white flex items-center justify-center text-xl mb-5 shadow-md shadow-forest/20">
+                <i class="fa-solid fa-seedling"></i>
+              </div>
+              <span class="text-xs font-bold uppercase text-forest">Meta ODS 15.1 & 15.5</span>
+              <h3 class="text-xl font-bold text-slate-900 mt-1 mb-2.5">Conservação de Ecossistemas</h3>
+              <p class="text-sm text-slate-600 leading-relaxed">
+                Assegurar a conservação, recuperação e uso sustentável de ecossistemas terrestres e de água doce interiores, protegendo a biodiversidade nativa.
+              </p>
+              <div class="mission-extra hidden mt-4 pt-4 border-t border-emerald-200/70 text-xs text-slate-700 space-y-1.5">
+                <p class="font-bold text-forestDark">Como atuamos em Piracicaba:</p>
+                <p>• Divulgação de mutirões de plantio de espécies nativas da Mata Atlântica e educação ambiental sobre fauna e flora local.</p>
+              </div>
+            </div>
+            <div class="mt-5 pt-3 flex items-center justify-between text-xs font-bold text-forest">
+              <span class="mission-toggle-label">Clique para ver ação local</span>
+              <i class="fa-solid fa-chevron-down transition-transform"></i>
+            </div>
+          </div>
+
+          <!-- Card Pilar 3 -->
+          <div onclick="toggleMissionCard(this)" class="cursor-pointer group bg-slate-50 hover:bg-leafLight/60 rounded-3xl p-7 border border-slate-200/80 hover:border-forest transition flex flex-col justify-between">
+            <div>
+              <div class="w-12 h-12 rounded-2xl bg-slate-900 text-emerald-400 flex items-center justify-center text-xl mb-5 shadow-md">
+                <i class="fa-solid fa-mobile-screen-button"></i>
+              </div>
+              <span class="text-xs font-bold uppercase text-slate-600">Inovação Cidadã</span>
+              <h3 class="text-xl font-bold text-slate-900 mt-1 mb-2.5">Tecnologia a Favor da Natureza</h3>
+              <p class="text-sm text-slate-600 leading-relaxed">
+                Unir desenvolvimento de sistemas e engajamento comunitário para centralizar serviços ambientais públicos em uma interface simples e responsiva.
+              </p>
+              <div class="mission-extra hidden mt-4 pt-4 border-t border-slate-200 text-xs text-slate-700 space-y-1.5">
+                <p class="font-bold text-slate-900">Recursos da Plataforma:</p>
+                <p>• Geolocalização de Ecopontos com rota direta no Google Maps, confirmação de presença em eventos e acompanhamento de hábitos verdes.</p>
+              </div>
+            </div>
+            <div class="mt-5 pt-3 flex items-center justify-between text-xs font-bold text-slate-800">
+              <span class="mission-toggle-label">Clique para ver ação local</span>
+              <i class="fa-solid fa-chevron-down transition-transform"></i>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- =================================================================== -->
+    <!-- 4. PONTOS DE COLETA & ECOPONTOS EM PIRACICABA-SP (COM MAPA LEAFLET) -->
+    <!-- =================================================================== -->
+    <section id="coleta" class="py-16 md:py-20 bg-slate-50 border-b border-slate-200/70">
+      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-8">
+        
+        <!-- Cabeçalho da Seção -->
+        <div class="flex flex-col lg:flex-row lg:items-end justify-between gap-6">
+          <div>
+            <span class="inline-block text-xs font-extrabold uppercase tracking-wider text-forest bg-leafLight px-3.5 py-1.5 rounded-full mb-3">
+              Descarte Consciente • Piracicaba - SP
+            </span>
+            <h2 class="text-2xl sm:text-3xl lg:text-4xl font-extrabold text-slate-900">
+              Pontos de Coleta & Ecopontos
+            </h2>
+            <p class="text-sm sm:text-base text-slate-600 mt-2 max-w-2xl">
+              Filtre pelo tipo de material ou busque pelo seu bairro para encontrar o ponto de entrega voluntária mais próximo.
+            </p>
+          </div>
+
+          <!-- Busca por Bairro -->
+          <div class="w-full lg:w-80">
+            <label for="searchBairro" class="sr-only">Buscar por bairro ou ecoponto</label>
+            <div class="relative">
+              <i class="fa-solid fa-magnifying-glass absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 text-sm"></i>
+              <input
+                type="text"
+                id="searchBairro"
+                oninput="handleEcopontoSearch(this.value)"
+                placeholder="Buscar bairro (ex: Cecap, Dedini...)"
+                class="w-full pl-10 pr-4 py-3 rounded-2xl bg-white border border-slate-200 text-sm text-slate-800 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-forest focus:border-transparent shadow-sm"
+              />
+            </div>
+          </div>
+        </div>
+
+        <!-- Filtros por Categoria de Resíduo -->
+        <div id="wasteFilters" class="flex flex-wrap gap-2.5">
+          <button onclick="filterEcopontos('todos')" data-filter="todos" class="filter-chip active px-4 py-2.5 rounded-xl text-xs sm:text-sm font-bold bg-forest text-white shadow-sm transition">
+            Todos os Pontos
+          </button>
+          <button onclick="filterEcopontos('Recicláveis')" data-filter="Recicláveis" class="filter-chip px-4 py-2.5 rounded-xl text-xs sm:text-sm font-bold bg-white text-slate-700 border border-slate-200 hover:border-forest transition">
+            <i class="fa-solid fa-recycle text-forest mr-1.5"></i>Recicláveis
+          </button>
+          <button onclick="filterEcopontos('Óleo de Cozinha')" data-filter="Óleo de Cozinha" class="filter-chip px-4 py-2.5 rounded-xl text-xs sm:text-sm font-bold bg-white text-slate-700 border border-slate-200 hover:border-ocean transition">
+            <i class="fa-solid fa-droplet text-amber-500 mr-1.5"></i>Óleo de Cozinha
+          </button>
+          <button onclick="filterEcopontos('Eletrônicos')" data-filter="Eletrônicos" class="filter-chip px-4 py-2.5 rounded-xl text-xs sm:text-sm font-bold bg-white text-slate-700 border border-slate-200 hover:border-ocean transition">
+            <i class="fa-solid fa-plug text-ocean mr-1.5"></i>Eletrônicos
+          </button>
+          <button onclick="filterEcopontos('Entulho/Volumosos')" data-filter="Entulho/Volumosos" class="filter-chip px-4 py-2.5 rounded-xl text-xs sm:text-sm font-bold bg-white text-slate-700 border border-slate-200 hover:border-forest transition">
+            <i class="fa-solid fa-couch text-slate-600 mr-1.5"></i>Entulho/Volumosos
+          </button>
+        </div>
+
+        <!-- Grid Mapa Interativo Leaflet + Lista de Ecopontos -->
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
+          
+          <!-- Mapa Interativo Real (Leaflet) -->
+          <div class="lg:col-span-7 bg-white rounded-3xl border border-slate-200 shadow-sm overflow-hidden">
+            <div class="px-5 py-3.5 border-b border-slate-100 flex flex-wrap items-center justify-between gap-2 bg-slate-50/80">
+              <div class="flex items-center gap-2">
+                <span class="w-2.5 h-2.5 rounded-full bg-forest animate-pulse"></span>
+                <span class="text-xs sm:text-sm font-bold text-slate-800">Mapa Interativo • Piracicaba, SP</span>
+              </div>
+              <span class="text-xs text-slate-500">Clique nos marcadores para ver detalhes e rota</span>
+            </div>
+
+            <!-- Container do Mapa Leaflet -->
+            <div id="piracicabaMap" class="w-full h-[380px] sm:h-[450px]"></div>
+
+            <!-- Painel de Detalhes do Ecoponto Selecionado -->
+            <div id="selectedEcopontoDetail" class="p-5 sm:p-6 bg-leafLight/60 border-t border-emerald-200/80 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+              <div class="space-y-1">
+                <div class="flex flex-wrap items-center gap-2">
+                  <span class="text-xs font-extrabold uppercase tracking-wide text-forest">Ponto em Destaque</span>
+                  <span id="detailHours" class="text-xs font-semibold bg-white text-slate-700 px-2.5 py-0.5 rounded-lg border border-slate-200">
+                    Seg a Sáb • 08h às 17h
+                  </span>
+                </div>
+                <h3 id="detailName" class="text-lg sm:text-xl font-bold text-slate-900">Ecoponto Bosques do Lenheiro</h3>
+                <p id="detailAddress" class="text-xs sm:text-sm text-slate-600">
+                  <i class="fa-solid fa-location-dot text-forest mr-1.5"></i>Rua das Seringueiras, s/n — Bosques do Lenheiro, Piracicaba - SP
+                </p>
+                <div id="detailMaterials" class="flex flex-wrap gap-1.5 pt-2"></div>
+              </div>
+
+              <a id="detailMapsLink" href="https://www.google.com/maps/search/?api=1&query=Ecoponto+Bosques+do+Lenheiro+Piracicaba+SP" target="_blank" rel="noopener noreferrer" class="shrink-0 inline-flex items-center justify-center gap-2 bg-ocean hover:bg-oceanDark text-white text-xs sm:text-sm font-bold px-5 py-3 rounded-xl shadow-sm transition">
+                <i class="fa-solid fa-diamond-turn-right"></i>
+                <span>Abrir rota no Google Maps</span>
+              </a>
+            </div>
+          </div>
+
+          <!-- Lista Lateral de Ecopontos -->
+          <div class="lg:col-span-5 space-y-3">
+            <div class="flex items-center justify-between px-1">
+              <span id="ecopontoCountLabel" class="text-xs font-bold uppercase tracking-wider text-slate-500">
+                Mostrando 6 pontos de coleta
+              </span>
+            </div>
+            <div id="ecopontosList" class="space-y-3 max-h-[540px] overflow-y-auto pr-1"></div>
+          </div>
+
+        </div>
+      </div>
+    </section>
+
+    <!-- =================================================================== -->
+    <!-- 5. EVENTOS AMBIENTAIS EM PIRACICABA (PERSISTÊNCIA NO LOCALSTORAGE)  -->
+    <!-- =================================================================== -->
+    <section id="eventos" class="py-16 md:py-20 bg-white border-b border-slate-200/70">
+      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-8">
+        
+        <div class="flex flex-col md:flex-row md:items-end justify-between gap-4">
+          <div>
+            <span class="inline-block text-xs font-extrabold uppercase tracking-wider text-ocean bg-waterLight px-3.5 py-1.5 rounded-full mb-3">
+              Ação Comunitária • Piracicaba - SP
+            </span>
+            <h2 class="text-2xl sm:text-3xl lg:text-4xl font-extrabold text-slate-900">
+              Eventos Ambientais em Piracicaba
+            </h2>
+            <p class="text-sm sm:text-base text-slate-600 mt-2 max-w-2xl">
+              Participe presencialmente de mutirões, oficinas e plantios. Sua inscrição fica salva neste dispositivo.
+            </p>
+          </div>
+
+          <!-- Filtros de Eventos -->
+          <div class="flex flex-wrap gap-2">
+            <button onclick="filterEvents('Todos')" data-ev-filter="Todos" class="ev-filter-btn active px-4 py-2 rounded-xl text-xs sm:text-sm font-bold bg-ocean text-white shadow-sm transition">
+              Todos
+            </button>
+            <button onclick="filterEvents('Mutirões')" data-ev-filter="Mutirões" class="ev-filter-btn px-4 py-2 rounded-xl text-xs sm:text-sm font-bold bg-slate-100 text-slate-700 hover:bg-slate-200 transition">
+              Mutirões
+            </button>
+            <button onclick="filterEvents('Oficinas')" data-ev-filter="Oficinas" class="ev-filter-btn px-4 py-2 rounded-xl text-xs sm:text-sm font-bold bg-slate-100 text-slate-700 hover:bg-slate-200 transition">
+              Oficinas
+            </button>
+            <button onclick="filterEvents('Plantio')" data-ev-filter="Plantio" class="ev-filter-btn px-4 py-2 rounded-xl text-xs sm:text-sm font-bold bg-slate-100 text-slate-700 hover:bg-slate-200 transition">
+              Plantio
+            </button>
+          </div>
+        </div>
+
+        <!-- Grid de Eventos -->
+        <div id="eventsGrid" class="grid grid-cols-1 md:grid-cols-2 gap-6"></div>
+      </div>
+    </section>
+
+    <!-- =================================================================== -->
+    <!-- 6. DICAS SUSTENTÁVEIS & MEU IMPACTO (CHECKLIST + LOCALSTORAGE)      -->
+    <!-- =================================================================== -->
+    <section id="dicas" class="py-16 md:py-20 bg-slate-50 border-b border-slate-200/70">
+      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-10">
+        
+        <div class="flex flex-col lg:flex-row lg:items-end justify-between gap-6">
+          <div>
+            <span class="inline-block text-xs font-extrabold uppercase tracking-wider text-forest bg-leafLight px-3.5 py-1.5 rounded-full mb-3">
+              Educação Ambiental & Hábitos
+            </span>
+            <h2 class="text-2xl sm:text-3xl lg:text-4xl font-extrabold text-slate-900">
+              Dicas Sustentáveis & Meu Impacto
+            </h2>
+            <p class="text-sm sm:text-base text-slate-600 mt-2 max-w-2xl">
+              Pequenas atitudes diárias protegem o solo e impedem a contaminação dos nossos rios. Marque seus hábitos no checklist abaixo e acompanhe sua Pontuação Eco.
+            </p>
+          </div>
+
+          <!-- Card de Pontuação Eco & Barra de Progresso -->
+          <div class="bg-white rounded-2xl p-5 border border-slate-200 shadow-sm w-full lg:w-96 space-y-3">
+            <div class="flex items-center justify-between">
+              <div class="flex items-center gap-2.5">
+                <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-forest to-ocean text-white flex items-center justify-center font-extrabold text-sm shadow">
+                  <i class="fa-solid fa-award"></i>
+                </div>
+                <div>
+                  <p class="text-xs font-bold uppercase text-slate-500">Sua Pontuação Eco</p>
+                  <p class="text-lg font-extrabold text-slate-900"><span id="ecoPointsDisplay">0</span> <span class="text-xs font-semibold text-forest">pts</span></p>
+                </div>
+              </div>
+              <span id="ecoLevelBadge" class="text-xs font-bold px-2.5 py-1 rounded-full bg-leafLight text-forest">
+                Iniciante Verde
+              </span>
+            </div>
+
+            <div>
+              <div class="flex justify-between text-xs font-semibold text-slate-600 mb-1.5">
+                <span id="habitsProgressLabel">0 de 6 hábitos praticados</span>
+                <span id="habitsPercentLabel">0%</span>
+              </div>
+              <div class="w-full h-2.5 bg-slate-100 rounded-full overflow-hidden">
+                <div id="habitsProgressBar" class="h-full bg-gradient-to-r from-ocean to-forest rounded-full transition-all duration-300" style="width: 0%;"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Checklist Interativo de Hábitos Sustentáveis -->
+        <div class="bg-white rounded-3xl p-6 sm:p-8 border border-slate-200 shadow-sm">
+          <div class="flex flex-wrap items-center justify-between gap-2 mb-5">
+            <div>
+              <h3 class="text-lg sm:text-xl font-bold text-slate-900">Checklist Interativo do Cidadão Piracicabano</h3>
+              <p class="text-xs sm:text-sm text-slate-500">Cada hábito concluído soma pontos para o seu perfil sustentável (salvo automaticamente).</p>
+            </div>
+            <button onclick="resetChecklist()" class="text-xs font-semibold text-slate-400 hover:text-slate-600 underline">
+              Reiniciar checklist
+            </button>
+          </div>
+
+          <div id="habitChecklistGrid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4"></div>
+        </div>
+
+        <!-- Guias Práticos ODS 14 e ODS 15 -->
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+          <!-- Guia ODS 14 -->
+          <div class="bg-white rounded-3xl p-6 sm:p-7 border border-sky-100 shadow-sm space-y-4">
+            <div class="flex items-center gap-3 pb-3 border-b border-slate-100">
+              <div class="w-11 h-11 rounded-xl bg-[#0A97D9] text-white flex items-center justify-center font-extrabold text-base shrink-0">
+                14
+              </div>
+              <div>
+                <h3 class="font-bold text-lg text-slate-900">Guia ODS 14: Proteção às Águas</h3>
+                <p class="text-xs text-slate-500">Cuidados essenciais para preservar o Rio Piracicaba</p>
+              </div>
+            </div>
+            <ul class="space-y-3 text-sm text-slate-700">
+              <li class="p-3.5 rounded-2xl bg-waterLight/70 flex items-start gap-3">
+                <i class="fa-solid fa-bottle-droplet text-amber-500 mt-1"></i>
+                <div>
+                  <strong class="text-slate-900 block">Óleo de cozinha usado:</strong>
+                  <span class="text-xs text-slate-600">Espere esfriar, armazene em garrafa PET bem fechada e entregue nos Ecopontos. Nunca despeje no ralo da pia.</span>
+                </div>
+              </li>
+              <li class="p-3.5 rounded-2xl bg-waterLight/70 flex items-start gap-3">
+                <i class="fa-solid fa-bag-shopping text-ocean mt-1"></i>
+                <div>
+                  <strong class="text-slate-900 block">Menos plástico descartável:</strong>
+                  <span class="text-xs text-slate-600">Leve ecobags ao mercado e evite descartáveis que podem ser levados pela chuva para as galerias pluviais.</span>
+                </div>
+              </li>
+            </ul>
+          </div>
+
+          <!-- Guia ODS 15 -->
+          <div class="bg-white rounded-3xl p-6 sm:p-7 border border-emerald-100 shadow-sm space-y-4">
+            <div class="flex items-center gap-3 pb-3 border-b border-slate-100">
+              <div class="w-11 h-11 rounded-xl bg-[#56C02B] text-white flex items-center justify-center font-extrabold text-base shrink-0">
+                15
+              </div>
+              <div>
+                <h3 class="font-bold text-lg text-slate-900">Guia ODS 15: Solo & Mata Atlântica</h3>
+                <p class="text-xs text-slate-500">Boas práticas para reduzir aterros e proteger a flora</p>
+              </div>
+            </div>
+            <ul class="space-y-3 text-sm text-slate-700">
+              <li class="p-3.5 rounded-2xl bg-leafLight/70 flex items-start gap-3">
+                <i class="fa-solid fa-recycle text-forest mt-1"></i>
+                <div>
+                  <strong class="text-slate-900 block">Separação de recicláveis secos:</strong>
+                  <span class="text-xs text-slate-600">Papel, papelão, metais, vidros e plásticos limpos garantem reciclagem eficiente e renda às cooperativas locais.</span>
+                </div>
+              </li>
+              <li class="p-3.5 rounded-2xl bg-leafLight/70 flex items-start gap-3">
+                <i class="fa-solid fa-tree text-forest mt-1"></i>
+                <div>
+                  <strong class="text-slate-900 block">Respeito às áreas de preservação:</strong>
+                  <span class="text-xs text-slate-600">Nunca descarte entulho ou podas em terrenos baldios ou margens de córregos. Utilize os Ecopontos gratuitos da cidade.</span>
+                </div>
+              </li>
+            </ul>
+          </div>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- =================================================================== -->
+    <!-- 7. NOTÍCIAS DA NATUREZA & SUSTENTABILIDADE (FILTRO + MODAL)         -->
+    <!-- =================================================================== -->
+    <section id="noticias" class="py-16 md:py-20 bg-white">
+      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-8">
+        
+        <div class="flex flex-col md:flex-row md:items-end justify-between gap-4">
+          <div>
+            <span class="inline-block text-xs font-extrabold uppercase tracking-wider text-ocean bg-waterLight px-3.5 py-1.5 rounded-full mb-3">
+              Atualizações Ambientais
+            </span>
+            <h2 class="text-2xl sm:text-3xl lg:text-4xl font-extrabold text-slate-900">
+              Notícias da Natureza & Sustentabilidade
+            </h2>
+            <p class="text-sm sm:text-base text-slate-600 mt-2 max-w-2xl">
+              Acompanhe ações de preservação hídrica, reflorestamento e iniciativas sustentáveis em Piracicaba e na Bacia PCJ.
+            </p>
+          </div>
+
+          <!-- Filtro por ODS -->
+          <div class="flex flex-wrap gap-2">
+            <button onclick="filterNews('Todas')" data-news-filter="Todas" class="news-filter-btn active px-4 py-2 rounded-xl text-xs sm:text-sm font-bold bg-slate-900 text-white shadow-sm transition">
+              Todas
+            </button>
+            <button onclick="filterNews('ODS 14')" data-news-filter="ODS 14" class="news-filter-btn px-4 py-2 rounded-xl text-xs sm:text-sm font-bold bg-slate-100 text-slate-700 hover:bg-sky-100 hover:text-ocean transition">
+              ODS 14 • Água
+            </button>
+            <button onclick="filterNews('ODS 15')" data-news-filter="ODS 15" class="news-filter-btn px-4 py-2 rounded-xl text-xs sm:text-sm font-bold bg-slate-100 text-slate-700 hover:bg-emerald-100 hover:text-forest transition">
+              ODS 15 • Terra
+            </button>
+          </div>
+        </div>
+
+        <!-- Grid de Notícias -->
+        <div id="newsGrid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"></div>
+      </div>
+    </section>
+  </main>
+
+  <!-- ===================================================================== -->
+  <!-- 8. RODAPÉ INSTITUCIONAL                                               -->
+  <!-- ===================================================================== -->
+  <footer class="bg-slate-900 text-slate-300 border-t border-slate-800">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 md:py-16">
+      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-12 gap-8 pb-10 border-b border-slate-800">
+        
+        <!-- Identidade EcoPira -->
+        <div class="lg:col-span-5 space-y-4">
+          <div class="flex items-center gap-3">
+            <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-ocean to-forest flex items-center justify-center text-white">
+              <i class="fa-solid fa-leaf"></i>
+            </div>
+            <span class="font-display font-extrabold text-2xl text-white">Eco<span class="text-emerald-400">Pira</span></span>
+          </div>
+          <p class="text-sm text-slate-400 leading-relaxed max-w-md">
+            Plataforma digital voltada à conscientização ambiental e ao acesso cidadão a pontos de coleta e eventos ecológicos em Piracicaba - SP, alinhada às ODS 14 e 15 da ONU.
+          </p>
+          <div class="flex flex-wrap gap-2 pt-1">
+            <span class="px-3 py-1 rounded-lg bg-[#0A97D9]/20 text-sky-300 text-xs font-bold border border-sky-500/30">
+              ODS 14 • Vida na Água
+            </span>
+            <span class="px-3 py-1 rounded-lg bg-[#56C02B]/20 text-emerald-300 text-xs font-bold border border-emerald-500/30">
+              ODS 15 • Vida Terrestre
+            </span>
+          </div>
+        </div>
+
+        <!-- Navegação Rápida -->
+        <div class="lg:col-span-3 space-y-3">
+          <h3 class="text-sm font-bold uppercase tracking-wider text-white">Navegação</h3>
+          <ul class="space-y-2 text-sm text-slate-400">
+            <li><a href="#inicio" class="hover:text-emerald-400 transition">Início & ODS</a></li>
+            <li><a href="#missao" class="hover:text-emerald-400 transition">Nossa Missão</a></li>
+            <li><a href="#coleta" class="hover:text-emerald-400 transition">Pontos de Coleta</a></li>
+            <li><a href="#eventos" class="hover:text-emerald-400 transition">Eventos em Piracicaba</a></li>
+            <li><a href="#dicas" class="hover:text-emerald-400 transition">Dicas & Checklist</a></li>
+            <li><a href="#noticias" class="hover:text-emerald-400 transition">Notícias Ambientais</a></li>
+          </ul>
+        </div>
+
+        <!-- Créditos Acadêmicos -->
+        <div class="lg:col-span-4 space-y-3 bg-slate-800/60 rounded-2xl p-5 border border-slate-700/70">
+          <span class="inline-block text-[11px] font-extrabold uppercase tracking-wider text-emerald-400">
+            Projeto Acadêmico
+          </span>
+          <h3 class="text-base font-bold text-white">VIII Jornada de Informática - 2026</h3>
+          <p class="text-xs text-slate-300 leading-relaxed">
+            <strong>Curso:</strong> Desenvolvimento de Sistemas (2º/3º ano)<br />
+            <strong>Orientadora:</strong> Drª Sandra Rodrigues Sarro Boarati<br />
+            <strong>Município:</strong> Piracicaba — São Paulo, Brasil
+          </p>
+        </div>
+
+      </div>
+
+      <div class="pt-6 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-slate-500">
+        <p>© 2026 EcoPira • Todos os direitos reservados. Desenvolvido para educação e sustentabilidade.</p>
+        <p>Código aberto pronto para hospedagem no GitHub Pages.</p>
+      </div>
+    </div>
+  </footer>
+
+  <!-- ===================================================================== -->
+  <!-- MODAL DE LEITURA COMPLETA DE NOTÍCIA                                  -->
+  <!-- ===================================================================== -->
+  <div id="newsModal" role="dialog" aria-modal="true" aria-labelledby="modalNewsTitle" class="hidden fixed inset-0 z-50 bg-slate-900/70 backdrop-blur-sm flex items-center justify-center p-4">
+    <div class="bg-white rounded-3xl max-w-2xl w-full max-h-[88vh] overflow-y-auto shadow-2xl border border-slate-200 p-6 sm:p-8 relative">
+      <button onclick="closeNewsModal()" aria-label="Fechar janela de notícia" class="absolute top-5 right-5 w-10 h-10 rounded-full bg-slate-100 hover:bg-slate-200 text-slate-700 flex items-center justify-center transition">
+        <i class="fa-solid fa-xmark text-base"></i>
+      </button>
+
+      <div class="flex items-center gap-2 mb-3">
+        <span id="modalNewsBadge" class="text-xs font-extrabold uppercase px-3 py-1 rounded-full bg-leafLight text-forest"></span>
+        <span id="modalNewsDate" class="text-xs text-slate-400"></span>
+      </div>
+
+      <h3 id="modalNewsTitle" class="text-xl sm:text-2xl font-extrabold text-slate-900 leading-snug mb-4"></h3>
+      
+      <div id="modalNewsContent" class="space-y-4 text-sm sm:text-base text-slate-700 leading-relaxed"></div>
+
+      <div class="mt-8 pt-4 border-t border-slate-100 flex justify-end">
+        <button onclick="closeNewsModal()" class="px-6 py-2.5 rounded-xl bg-slate-900 hover:bg-slate-800 text-white text-xs sm:text-sm font-bold transition">
+          Fechar Artigo
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Toast de Feedback Visual -->
+  <div id="toastNotification" class="fixed bottom-5 right-5 z-50 transform translate-y-20 opacity-0 transition-all duration-300 pointer-events-none bg-slate-900 text-white px-4 py-3 rounded-2xl shadow-xl border border-slate-700 flex items-center gap-3 text-xs sm:text-sm font-semibold">
+    <i id="toastIcon" class="fa-solid fa-circle-check text-emerald-400 text-base"></i>
+    <span id="toastMessage">Ação concluída!</span>
+  </div>
+
+  <!-- ===================================================================== -->
+  <!-- JAVASCRIPT: CAMADA DE DADOS (API_DATA / SERVICES) & INTERATIVIDADE    -->
+  <!-- ===================================================================== -->
+  <script>
+    /**
+     * =========================================================================
+     * CAMADA DE DADOS CENTRALIZADA (API_DATA)
+     * Estruturada para fácil migração futura para Firebase, Supabase ou API REST.
+     * =========================================================================
+     */
+    const API_DATA = {
+      ecopontos: [
+        {
+          id: 'eco-1',
+          nome: 'Ecoponto Bosques do Lenheiro',
+          bairro: 'Bosques do Lenheiro',
+          endereco: 'Rua das Seringueiras, s/n — Bosques do Lenheiro, Piracicaba - SP',
+          horario: 'Seg a Sáb • 08h às 17h',
+          lat: -22.6885,
+          lng: -47.6698,
+          materiais: ['Recicláveis', 'Óleo de Cozinha', 'Entulho/Volumosos'],
+          tipo: 'municipal'
+        },
+        {
+          id: 'eco-2',
+          nome: 'Ecoponto Mário Dedini',
+          bairro: 'Mário Dedini',
+          endereco: 'Av. Luiz Ralf Benatti, s/n — Mário Dedini, Piracicaba - SP',
+          horario: 'Seg a Sáb • 08h às 17h',
+          lat: -22.6742,
+          lng: -47.6615,
+          materiais: ['Recicláveis', 'Óleo de Cozinha', 'Entulho/Volumosos'],
+          tipo: 'municipal'
+        },
+        {
+          id: 'eco-3',
+          nome: 'Ecoponto Piracicamirim',
+          bairro: 'Piracicamirim',
+          endereco: 'Rua Rio Grande do Norte, s/n — Piracicamirim, Piracicaba - SP',
+          horario: 'Seg a Sáb • 08h às 17h',
+          lat: -22.7388,
+          lng: -47.6305,
+          materiais: ['Recicláveis', 'Eletrônicos', 'Entulho/Volumosos'],
+          tipo: 'municipal'
+        },
+        {
+          id: 'eco-4',
+          nome: 'Ecoponto Cecap / Eldorado',
+          bairro: 'Cecap',
+          endereco: 'Av. Eurico Gaspar Dutra, s/n — Cecap, Piracicaba - SP',
+          horario: 'Seg a Sáb • 08h às 17h',
+          lat: -22.7556,
+          lng: -47.6242,
+          materiais: ['Recicláveis', 'Óleo de Cozinha', 'Entulho/Volumosos'],
+          tipo: 'municipal'
+        },
+        {
+          id: 'eco-5',
+          nome: 'Ecoponto Santa Terezinha',
+          bairro: 'Santa Terezinha',
+          endereco: 'Rua João Eugênio Piedade — Vila Sônia / Santa Terezinha, Piracicaba - SP',
+          horario: 'Seg a Sáb • 08h às 17h',
+          lat: -22.6688,
+          lng: -47.6852,
+          materiais: ['Recicláveis', 'Eletrônicos', 'Entulho/Volumosos'],
+          tipo: 'municipal'
+        },
+        {
+          id: 'eco-6',
+          nome: 'Ponto de Coleta Parque da Rua do Porto',
+          bairro: 'Centro / Rua do Porto',
+          endereco: 'Av. Alidor Pecorari — Parque da Rua do Porto, Piracicaba - SP',
+          horario: 'Ter a Dom • 08h às 18h',
+          lat: -22.7214,
+          lng: -47.6562,
+          materiais: ['Recicláveis', 'Óleo de Cozinha', 'Eletrônicos'],
+          tipo: 'parceiro'
+        }
+      ],
+
+      eventos: [
+        {
+          id: 'ev-1',
+          titulo: 'Mutirão de Limpeza das Margens do Rio Piracicaba',
+          categoria: 'Mutirões',
+          ods: 'ODS 14',
+          data: 'Sábado, 12 Dez • 08h00 às 11h30',
+          local: 'Parque da Rua do Porto / Passarela Pênsil — Piracicaba',
+          descricao: 'Ação voluntária para retirada de plásticos, garrafas e resíduos nas margens do Rio Piracicaba, evitando que poluam a bacia hidrográfica.',
+          inscritosBase: 48
+        },
+        {
+          id: 'ev-2',
+          titulo: 'Plantio de Mudas Nativas da Mata Atlântica',
+          categoria: 'Plantio',
+          ods: 'ODS 15',
+          data: 'Domingo, 13 Dez • 08h30 às 12h00',
+          local: 'Parque Natural Municipal do Monte Alegre — Piracicaba',
+          descricao: 'Reflorestamento comunitário com mudas de ipê, jequitibá e árvores frutíferas nativas para recuperação da mata ciliar e fauna local.',
+          inscritosBase: 36
+        },
+        {
+          id: 'ev-3',
+          titulo: 'Oficina Prática de Compostagem Doméstica',
+          categoria: 'Oficinas',
+          ods: 'ODS 15',
+          data: 'Quarta, 16 Dez • 14h00 às 16h30',
+          local: 'Parque do Engenho Central (Armazém 14) — Piracicaba',
+          descricao: 'Aprenda passo a passo como montar uma composteira doméstica sem odor e transformar resíduos orgânicos em adubo natural.',
+          inscritosBase: 29
+        },
+        {
+          id: 'ev-4',
+          titulo: 'Mutirão de Coleta de Eletrônicos e Óleo Saturado',
+          categoria: 'Mutirões',
+          ods: 'ODS 14',
+          data: 'Sexta, 18 Dez • 09h00 às 16h00',
+          local: 'Praça José Bonifácio — Centro, Piracicaba - SP',
+          descricao: 'Recebimento itinerante de pilhas, baterias, celulares antigos e óleo de cozinha usado com distribuição gratuita de mudas nativas.',
+          inscritosBase: 64
+        }
+      ],
+
+      habitos: [
+        { id: 'hab-1', texto: 'Armazeno óleo de cozinha usado em garrafa PET para levar ao Ecoponto', ods: 'ODS 14', pontos: 20 },
+        { id: 'hab-2', texto: 'Separo lixo reciclável seco (papel, plástico, vidro e metal)', ods: 'ODS 15', pontos: 20 },
+        { id: 'hab-3', texto: 'Uso garrafa reutilizável e ecobag para reduzir plásticos descartáveis', ods: 'ODS 14', pontos: 15 },
+        { id: 'hab-4', texto: 'Descarto pilhas, baterias e eletrônicos apenas em pontos certificados', ods: 'ODS 14', pontos: 15 },
+        { id: 'hab-5', texto: 'Faço compostagem ou separo adequadamente os resíduos orgânicos', ods: 'ODS 15', pontos: 15 },
+        { id: 'hab-6', texto: 'Nunca descarto lixo, bitucas ou entulho em ruas, bueiros ou terrenos', ods: 'ODS 15', pontos: 15 }
+      ],
+
+      noticias: [
+        {
+          id: 'not-1',
+          ods: 'ODS 14',
+          categoria: 'ODS 14 • Recursos Hídricos',
+          data: '14 de Novembro de 2026',
+          titulo: 'Recuperação de matas ciliares fortalece a qualidade da água na Bacia do Rio Piracicaba',
+          resumo: 'Corredores ecológicos implantados às margens dos ribeirões funcionam como filtros naturais contra o assoreamento e a poluição difusa.',
+          conteudo: [
+            'A proteção das faixas de vegetação nativa ao longo dos cursos d’água que formam a Bacia do Rio Piracicaba é uma das ações mais importantes para o cumprimento da ODS 14 (Vida na Água) na região.',
+            'As raízes das árvores nativas estabilizam o solo das margens, evitam erosões e filtram resíduos carregados pelas chuvas antes que atinjam o leito do rio.',
+            'Com a participação ativa dos moradores no descarte correto de óleo e recicláveis nos Ecopontos municipais, o impacto positivo sobre a fauna aquática torna-se ainda maior.'
+          ]
+        },
+        {
+          id: 'not-2',
+          ods: 'ODS 15',
+          categoria: 'ODS 15 • Biodiversidade Local',
+          data: '09 de Novembro de 2026',
+          titulo: 'Parques urbanos de Piracicaba ampliam trilhas educativas e plantio de espécies nativas',
+          resumo: 'Iniciativas no Parque do Monte Alegre e no Engenho Central aproximam estudantes e famílias da conservação da Mata Atlântica.',
+          conteudo: [
+            'A preservação da biodiversidade urbana ganhou novo impulso com roteiros educativos voltados à identificação de árvores nativas, abelhas polinizadoras e aves da região de Piracicaba.',
+            'A iniciativa integra as metas da ODS 15 (Vida Terrestre), incentivando a comunidade a cuidar das áreas verdes e combater o descarte irregular de resíduos.'
+          ]
+        },
+        {
+          id: 'not-3',
+          ods: 'ODS 14',
+          categoria: 'ODS 14 • Economia Circular',
+          data: '02 de Novembro de 2026',
+          titulo: 'Coleta seletiva e Ecopontos evitam que toneladas de plástico cheguem aos córregos urbanos',
+          resumo: 'Acesso rápido à localização e horários dos pontos de entrega voluntária aumenta a adesão da população piracicabana.',
+          conteudo: [
+            'Quando o cidadão sabe exatamente onde entregar resíduos recicláveis, volumosos e óleo de cozinha, reduz-se drasticamente o descarte clandestino em vias públicas.',
+            'Além de proteger os rios e o solo, a destinação correta fortalece o trabalho das cooperativas de reciclagem de Piracicaba.'
+          ]
+        }
+      ]
+    };
+
+    /**
+     * =========================================================================
+     * CAMADA DE SERVIÇOS (SERVICES)
+     * Abstrai leitura/escrita (hoje via localStorage; no futuro via fetch/SDK).
+     * =========================================================================
+     */
+    const SERVICES = {
+      STORAGE_KEYS: {
+        EVENTS: 'ecopira_confirmed_events_v1',
+        HABITS: 'ecopira_completed_habits_v1'
+      },
+
+      async getEcopontos() {
+        // Futuro: return await fetch('/api/ecopontos').then(r => r.json());
+        return API_DATA.ecopontos;
+      },
+
+      async getEventos() {
+        return API_DATA.eventos;
+      },
+
+      getConfirmedEvents() {
+        try {
+          return JSON.parse(localStorage.getItem(this.STORAGE_KEYS.EVENTS)) || [];
+        } catch {
+          return [];
+        }
+      },
+
+      toggleEventConfirmation(eventId) {
+        const current = this.getConfirmedEvents();
+        const exists = current.includes(eventId);
+        const updated = exists
+          ? current.filter(id => id !== eventId)
+          : [...current, eventId];
+        localStorage.setItem(this.STORAGE_KEYS.EVENTS, JSON.stringify(updated));
+        return !exists;
+      },
+
+      getCompletedHabits() {
+        try {
+          return JSON.parse(localStorage.getItem(this.STORAGE_KEYS.HABITS)) || ['hab-1', 'hab-2'];
+        } catch {
+          return ['hab-1', 'hab-2'];
+        }
+      },
+
+      toggleHabitCompletion(habitId) {
+        const current = this.getCompletedHabits();
+        const exists = current.includes(habitId);
+        const updated = exists
+          ? current.filter(id => id !== habitId)
+          : [...current, habitId];
+        localStorage.setItem(this.STORAGE_KEYS.HABITS, JSON.stringify(updated));
+        return updated;
+      },
+
+      resetHabits() {
+        localStorage.setItem(this.STORAGE_KEYS.HABITS, JSON.stringify([]));
+        return [];
+      }
+    };
+
+    /**
+     * =========================================================================
+     * CONTROLE DE UI, MENU MOBILE, TOAST E MODAIS
+     * =========================================================================
+     */
+    const mobileMenuBtn = document.getElementById('mobileMenuBtn');
+    const mobileMenu = document.getElementById('mobileMenu');
+    const mobileMenuIcon = document.getElementById('mobileMenuIcon');
+
+    mobileMenuBtn.addEventListener('click', () => {
+      const isHidden = mobileMenu.classList.toggle('hidden');
+      mobileMenuBtn.setAttribute('aria-expanded', String(!isHidden));
+      mobileMenuIcon.className = isHidden ? 'fa-solid fa-bars text-lg' : 'fa-solid fa-xmark text-lg';
+    });
+
+    function closeMobileMenu() {
+      mobileMenu.classList.add('hidden');
+      mobileMenuBtn.setAttribute('aria-expanded', 'false');
+      mobileMenuIcon.className = 'fa-solid fa-bars text-lg';
+    }
+
+    let toastTimeout;
+    function showToast(message, isSuccess = true) {
+      const toast = document.getElementById('toastNotification');
+      const icon = document.getElementById('toastIcon');
+      const msg = document.getElementById('toastMessage');
+
+      msg.textContent = message;
+      icon.className = isSuccess
+        ? 'fa-solid fa-circle-check text-emerald-400 text-base'
+        : 'fa-solid fa-circle-info text-sky-400 text-base';
+
+      toast.classList.remove('translate-y-20', 'opacity-0');
+      clearTimeout(toastTimeout);
+      toastTimeout = setTimeout(() => {
+        toast.classList.add('translate-y-20', 'opacity-0');
+      }, 3000);
+    }
+
+    function toggleMissionCard(card) {
+      const extra = card.querySelector('.mission-extra');
+      const label = card.querySelector('.mission-toggle-label');
+      const icon = card.querySelector('.fa-chevron-down');
+      const isHidden = extra.classList.toggle('hidden');
+      label.textContent = isHidden ? 'Clique para ver ação local' : 'Recolher detalhes';
+      icon.style.transform = isHidden ? 'rotate(0deg)' : 'rotate(180deg)';
+    }
+
+    /**
+     * =========================================================================
+     * MÓDULO 1: MAPA INTERATIVO LEAFLET & PONTOS DE COLETA EM PIRACICABA
+     * =========================================================================
+     */
+    let mapInstance = null;
+    let mapMarkers = [];
+    let currentWasteFilter = 'todos';
+    let currentBairroSearch = '';
+    let selectedEcopontoId = 'eco-1';
+
+    function initMap() {
+      // Centro geográfico de Piracicaba - SP
+      mapInstance = L.map('piracicabaMap', {
+        scrollWheelZoom: false
+      }).setView([-22.715, -47.652], 12);
+
+      L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png', {
+        attribution: '&copy; OpenStreetMap &copy; CARTO',
+        maxZoom: 18
+      }).addTo(mapInstance);
+    }
+
+    function createCustomMarkerIcon(isSelected, tipo) {
+      const bg = isSelected
+        ? '#0F172A'
+        : tipo === 'parceiro' ? '#0284C7' : '#059669';
+      const scale = isSelected ? 'scale(1.18)' : 'scale(1)';
+
+      return L.divIcon({
+        className: 'custom-leaflet-pin',
+        html: `
+          <div style="background:${bg}; transform:${scale}; transition:all 0.2s;" class="w-9 h-9 rounded-full text-white flex items-center justify-center shadow-lg border-2 border-white">
+            <i class="fa-solid fa-recycle text-sm"></i>
+          </div>
+        `,
+        iconSize: [36, 36],
+        iconAnchor: [18, 18]
+      });
+    }
+
+    function filterEcopontos(categoria) {
+      currentWasteFilter = categoria;
+      document.querySelectorAll('.filter-chip').forEach(btn => {
+        if (btn.dataset.filter === categoria) {
+          btn.classList.add('bg-forest', 'text-white', 'shadow-sm');
+          btn.classList.remove('bg-white', 'text-slate-700', 'border', 'border-slate-200');
+        } else {
+          btn.classList.remove('bg-forest', 'text-white', 'shadow-sm');
+          btn.classList.add('bg-white', 'text-slate-700', 'border', 'border-slate-200');
+        }
+      });
+      renderEcopontos();
+    }
+
+    function handleEcopontoSearch(query) {
+      currentBairroSearch = query.trim().toLowerCase();
+      renderEcopontos();
+    }
+
+    function selectEcoponto(id, flyTo = true) {
+      selectedEcopontoId = id;
+      const point = API_DATA.ecopontos.find(p => p.id === id);
+      if (point && mapInstance && flyTo) {
+        mapInstance.flyTo([point.lat, point.lng], 14, { duration: 0.7 });
+      }
+      renderEcopontos(false);
+    }
+
+    function renderEcopontos(autoSelectFirst = true) {
+      const listEl = document.getElementById('ecopontosList');
+      const countEl = document.getElementById('ecopontoCountLabel');
+
+      const filtered = API_DATA.ecopontos.filter(p => {
+        const matchesWaste = currentWasteFilter === 'todos' || p.materiais.includes(currentWasteFilter);
+        const matchesSearch = !currentBairroSearch ||
+          p.bairro.toLowerCase().includes(currentBairroSearch) ||
+          p.nome.toLowerCase().includes(currentBairroSearch) ||
+          p.endereco.toLowerCase().includes(currentBairroSearch);
+        return matchesWaste && matchesSearch;
+      });
+
+      if (autoSelectFirst && filtered.length > 0 && !filtered.some(p => p.id === selectedEcopontoId)) {
+        selectedEcopontoId = filtered[0].id;
+      }
+
+      // Atualiza marcadores no mapa Leaflet
+      if (mapInstance) {
+        mapMarkers.forEach(m => mapInstance.removeLayer(m));
+        mapMarkers = [];
+
+        filtered.forEach(p => {
+          const isSelected = p.id === selectedEcopontoId;
+          const marker = L.marker([p.lat, p.lng], {
+            icon: createCustomMarkerIcon(isSelected, p.tipo)
+          }).addTo(mapInstance);
+
+          const mapsUrl = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(p.nome + ' ' + p.bairro + ' Piracicaba SP')}`;
+          marker.bindPopup(`
+            <div style="min-width:200px;">
+              <span style="font-size:10px;font-weight:800;color:#059669;text-transform:uppercase;">${p.bairro}</span>
+              <h4 style="font-weight:700;font-size:14px;color:#0F172A;margin:2px 0 4px;">${p.nome}</h4>
+              <p style="font-size:12px;color:#475569;margin:0 0 6px;">${p.endereco}</p>
+              <p style="font-size:11px;font-weight:600;color:#0284C7;margin:0 0 8px;">${p.horario}</p>
+              <a href="${mapsUrl}" target="_blank" rel="noopener noreferrer" style="display:inline-block;background:#0284C7;color:#fff;font-size:11px;font-weight:700;padding:6px 10px;border-radius:8px;text-decoration:none;">
+                Abrir rota no Google Maps
+              </a>
+            </div>
+          `);
+
+          marker.on('click', () => selectEcoponto(p.id, false));
+          if (isSelected) marker.openPopup();
+          mapMarkers.push(marker);
+        });
+      }
+
+      countEl.textContent = filtered.length === 1
+        ? 'Mostrando 1 ponto de coleta'
+        : `Mostrando ${filtered.length} pontos de coleta`;
+
+      if (filtered.length === 0) {
+        listEl.innerHTML = `
+          <div class="bg-white rounded-2xl p-6 border border-slate-200 text-center space-y-2">
+            <i class="fa-solid fa-magnifying-glass text-2xl text-slate-300"></i>
+            <p class="text-sm font-bold text-slate-700">Nenhum ponto encontrado</p>
+            <p class="text-xs text-slate-500">Tente limpar a busca ou selecionar "Todos os Pontos".</p>
+          </div>
+        `;
+        return;
+      }
+
+      listEl.innerHTML = filtered.map(p => {
+        const isSelected = p.id === selectedEcopontoId;
+        const mapsUrl = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(p.nome + ' ' + p.bairro + ' Piracicaba SP')}`;
+
+        return `
+          <div onclick="selectEcoponto('${p.id}')" class="cursor-pointer rounded-2xl p-4 sm:p-5 border transition ${
+            isSelected
+              ? 'bg-leafLight/60 border-forest shadow-sm'
+              : 'bg-white border-slate-200 hover:border-slate-300'
+          }">
+            <div class="flex items-start justify-between gap-3">
+              <div>
+                <span class="text-[11px] font-extrabold uppercase tracking-wide text-ocean">${p.bairro}</span>
+                <h3 class="font-bold text-base text-slate-900">${p.nome}</h3>
+              </div>
+              <span class="text-[11px] font-semibold px-2.5 py-1 rounded-lg bg-slate-100 text-slate-600 shrink-0">
+                ${p.horario.split('•')[0].trim()}
+              </span>
+            </div>
+            <p class="text-xs text-slate-600 mt-1.5">${p.endereco}</p>
+            <div class="flex flex-wrap items-center justify-between gap-2 mt-3 pt-3 border-t border-slate-100">
+              <div class="flex flex-wrap gap-1.5">
+                ${p.materiais.map(m => `<span class="text-[11px] font-semibold px-2 py-0.5 rounded-md bg-white border border-slate-200 text-slate-700">${m}</span>`).join('')}
+              </div>
+              <a href="${mapsUrl}" target="_blank" rel="noopener noreferrer" onclick="event.stopPropagation()" class="text-xs font-bold text-ocean hover:text-oceanDark hover:underline inline-flex items-center gap-1">
+                <span>Rota</span>
+                <i class="fa-solid fa-arrow-up-right-from-square text-[10px]"></i>
+              </a>
+            </div>
+          </div>
+        `;
+      }).join('');
+
+      // Atualiza painel de destaque abaixo do mapa
+      const activePoint = filtered.find(p => p.id === selectedEcopontoId) || filtered[0];
+      if (activePoint) {
+        document.getElementById('detailName').textContent = activePoint.nome;
+        document.getElementById('detailHours').textContent = activePoint.horario;
+        document.getElementById('detailAddress').innerHTML = `<i class="fa-solid fa-location-dot text-forest mr-1.5"></i>${activePoint.endereco}`;
+        document.getElementById('detailMaterials').innerHTML = activePoint.materiais
+          .map(m => `<span class="text-xs font-bold px-2.5 py-1 rounded-lg bg-white text-forest border border-emerald-200">${m}</span>`)
+          .join('');
+        document.getElementById('detailMapsLink').href = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(activePoint.nome + ' ' + activePoint.bairro + ' Piracicaba SP')}`;
+      }
+    }
+
+    /**
+     * =========================================================================
+     * MÓDULO 2: EVENTOS AMBIENTAIS EM PIRACICABA (LOCALSTORAGE)
+     * =========================================================================
+     */
+    let currentEventCategory = 'Todos';
+
+    function filterEvents(cat) {
+      currentEventCategory = cat;
+      document.querySelectorAll('.ev-filter-btn').forEach(btn => {
+        if (btn.dataset.evFilter === cat) {
+          btn.classList.add('bg-ocean', 'text-white', 'shadow-sm');
+          btn.classList.remove('bg-slate-100', 'text-slate-700');
+        } else {
+          btn.classList.remove('bg-ocean', 'text-white', 'shadow-sm');
+          btn.classList.add('bg-slate-100', 'text-slate-700');
+        }
+      });
+      renderEvents();
+    }
+
+    function handleToggleEvent(eventId, eventTitle) {
+      const isNowConfirmed = SERVICES.toggleEventConfirmation(eventId);
+      renderEvents();
+      if (isNowConfirmed) {
+        showToast(`Presença confirmada: ${eventTitle}`, true);
+      } else {
+        showToast('Inscrição cancelada para este evento.', false);
+      }
+    }
+
+    function renderEvents() {
+      const grid = document.getElementById('eventsGrid');
+      const confirmedIds = SERVICES.getConfirmedEvents();
+
+      const filtered = currentEventCategory === 'Todos'
+        ? API_DATA.eventos
+        : API_DATA.eventos.filter(ev => ev.categoria === currentEventCategory);
+
+      grid.innerHTML = filtered.map(ev => {
+        const isConfirmed = confirmedIds.includes(ev.id);
+        const totalInscritos = ev.inscritosBase + (isConfirmed ? 1 : 0);
+        const odsColor = ev.ods === 'ODS 14' ? 'bg-[#0A97D9]' : 'bg-[#56C02B]';
+
+        return `
+          <article class="bg-slate-50 rounded-3xl p-6 sm:p-7 border border-slate-200/90 flex flex-col justify-between gap-5 hover:shadow-md transition">
+            <div class="space-y-3">
+              <div class="flex flex-wrap items-center justify-between gap-2">
+                <div class="flex items-center gap-2">
+                  <span class="text-xs font-extrabold text-white px-3 py-1 rounded-full ${odsColor}">${ev.ods}</span>
+                  <span class="text-xs font-bold text-slate-600 bg-white px-3 py-1 rounded-full border border-slate-200">${ev.categoria}</span>
+                </div>
+                <span class="text-xs font-semibold text-slate-600">
+                  <i class="fa-solid fa-users text-forest mr-1"></i>${totalInscritos} inscritos
+                </span>
+              </div>
+
+              <h3 class="text-lg sm:text-xl font-bold text-slate-900 leading-snug">${ev.titulo}</h3>
+
+              <div class="space-y-1.5 text-xs sm:text-sm text-slate-600">
+                <p><i class="fa-regular fa-calendar text-ocean w-4"></i> <strong>Data:</strong> ${ev.data}</p>
+                <p><i class="fa-solid fa-location-dot text-forest w-4"></i> <strong>Local:</strong> ${ev.local}</p>
+              </div>
+
+              <p class="text-xs sm:text-sm text-slate-600 leading-relaxed pt-1">${ev.descricao}</p>
+            </div>
+
+            <div class="pt-4 border-t border-slate-200/80 flex flex-wrap items-center justify-between gap-3">
+              <span class="text-xs font-semibold ${isConfirmed ? 'text-forest' : 'text-slate-500'}">
+                ${isConfirmed ? '<i class="fa-solid fa-circle-check mr-1"></i>Sua vaga está garantida!' : 'Entrada gratuita • Aberto ao público'}
+              </span>
+
+              <button onclick="handleToggleEvent('${ev.id}', '${ev.titulo.replace(/'/g, "\\'")}')" class="px-5 py-2.5 rounded-xl text-xs sm:text-sm font-bold transition shadow-sm ${
+                isConfirmed
+                  ? 'bg-leafLight text-forest border border-emerald-300 hover:bg-emerald-100'
+                  : 'bg-forest hover:bg-forestDark text-white'
+              }">
+                ${isConfirmed ? '<i class="fa-solid fa-check mr-1.5"></i>Presença Confirmada' : 'Confirmar Presença'}
+              </button>
+            </div>
+          </article>
+        `;
+      }).join('');
+    }
+
+    /**
+     * =========================================================================
+     * MÓDULO 3: CHECKLIST INTERATIVO DE HÁBITOS SUSTENTÁVEIS (LOCALSTORAGE)
+     * =========================================================================
+     */
+    function handleToggleHabit(habitId) {
+      SERVICES.toggleHabitCompletion(habitId);
+      renderChecklist();
+    }
+
+    function resetChecklist() {
+      SERVICES.resetHabits();
+      renderChecklist();
+      showToast('Checklist reiniciado.', false);
+    }
+
+    function renderChecklist() {
+      const grid = document.getElementById('habitChecklistGrid');
+      const completedIds = SERVICES.getCompletedHabits();
+
+      let totalPoints = 0;
+      API_DATA.habitos.forEach(h => {
+        if (completedIds.includes(h.id)) totalPoints += h.pontos;
+      });
+
+      const doneCount = completedIds.length;
+      const totalCount = API_DATA.habitos.length;
+      const percent = Math.round((doneCount / totalCount) * 100);
+
+      document.getElementById('ecoPointsDisplay').textContent = totalPoints;
+      document.getElementById('habitsProgressLabel').textContent = `${doneCount} de ${totalCount} hábitos praticados`;
+      document.getElementById('habitsPercentLabel').textContent = `${percent}%`;
+      document.getElementById('habitsProgressBar').style.width = `${percent}%`;
+
+      const levelBadge = document.getElementById('ecoLevelBadge');
+      if (percent === 100) {
+        levelBadge.textContent = 'Guardião de Piracicaba';
+      } else if (percent >= 50) {
+        levelBadge.textContent = 'Agente Sustentável';
+      } else {
+        levelBadge.textContent = 'Iniciante Verde';
+      }
+
+      grid.innerHTML = API_DATA.habitos.map(h => {
+        const isDone = completedIds.includes(h.id);
+        return `
+          <button onclick="handleToggleHabit('${h.id}')" class="text-left p-4 rounded-2xl border transition flex items-start gap-3.5 ${
+            isDone
+              ? 'bg-leafLight/80 border-forest/50 shadow-sm'
+              : 'bg-slate-50 border-slate-200 hover:bg-white hover:border-slate-300'
+          }">
+            <span class="w-6 h-6 rounded-lg flex items-center justify-center shrink-0 mt-0.5 transition ${
+              isDone ? 'bg-forest text-white' : 'bg-white border border-slate-300'
+            }">
+              ${isDone ? '<i class="fa-solid fa-check text-xs"></i>' : ''}
+            </span>
+            <div class="space-y-1.5">
+              <p class="text-xs sm:text-sm font-semibold leading-snug ${isDone ? 'text-slate-600 line-through' : 'text-slate-800'}">
+                ${h.texto}
+              </p>
+              <div class="flex items-center gap-2">
+                <span class="text-[10px] font-bold px-2 py-0.5 rounded bg-white text-ocean border border-slate-200">${h.ods}</span>
+                <span class="text-[11px] font-bold text-forest">+${h.pontos} pts</span>
+              </div>
+            </div>
+          </button>
+        `;
+      }).join('');
+    }
+
+    /**
+     * =========================================================================
+     * MÓDULO 4: NOTÍCIAS DA NATUREZA & MODAL DE LEITURA
+     * =========================================================================
+     */
+    let currentNewsOds = 'Todas';
+
+    function filterNews(odsFilter) {
+      currentNewsOds = odsFilter;
+      document.querySelectorAll('.news-filter-btn').forEach(btn => {
+        if (btn.dataset.newsFilter === odsFilter) {
+          btn.classList.add('bg-slate-900', 'text-white', 'shadow-sm');
+          btn.classList.remove('bg-slate-100', 'text-slate-700');
+        } else {
+          btn.classList.remove('bg-slate-900', 'text-white', 'shadow-sm');
+          btn.classList.add('bg-slate-100', 'text-slate-700');
+        }
+      });
+      renderNews();
+    }
+
+    function openNewsModal(newsId) {
+      const article = API_DATA.noticias.find(n => n.id === newsId);
+      if (!article) return;
+
+      document.getElementById('modalNewsBadge').textContent = article.categoria;
+      document.getElementById('modalNewsDate').textContent = article.data;
+      document.getElementById('modalNewsTitle').textContent = article.titulo;
+      document.getElementById('modalNewsContent').innerHTML = article.conteudo
+        .map(paragraph => `<p>${paragraph}</p>`)
+        .join('');
+
+      document.getElementById('newsModal').classList.remove('hidden');
+      document.body.style.overflow = 'hidden';
+    }
+
+    function closeNewsModal() {
+      document.getElementById('newsModal').classList.add('hidden');
+      document.body.style.overflow = '';
+    }
+
+    document.getElementById('newsModal').addEventListener('click', (e) => {
+      if (e.target.id === 'newsModal') closeNewsModal();
+    });
+
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape') closeNewsModal();
+    });
+
+    function renderNews() {
+      const grid = document.getElementById('newsGrid');
+      const filtered = currentNewsOds === 'Todas'
+        ? API_DATA.noticias
+        : API_DATA.noticias.filter(n => n.ods === currentNewsOds);
+
+      grid.innerHTML = filtered.map(n => {
+        const badgeStyle = n.ods === 'ODS 14'
+          ? 'bg-waterLight text-ocean'
+          : 'bg-leafLight text-forest';
+
+        return `
+          <article class="bg-slate-50 rounded-3xl p-6 border border-slate-200/90 flex flex-col justify-between hover:shadow-md transition">
+            <div>
+              <div class="flex items-center justify-between gap-2 mb-3">
+                <span class="text-[11px] font-extrabold uppercase px-2.5 py-1 rounded-lg ${badgeStyle}">${n.categoria}</span>
+                <span class="text-[11px] text-slate-400">${n.data}</span>
+              </div>
+              <h3 class="font-bold text-lg text-slate-900 leading-snug mb-2.5">${n.titulo}</h3>
+              <p class="text-xs sm:text-sm text-slate-600 leading-relaxed">${n.resumo}</p>
+            </div>
+
+            <div class="mt-6 pt-4 border-t border-slate-200/70">
+              <button onclick="openNewsModal('${n.id}')" class="inline-flex items-center gap-2 text-xs sm:text-sm font-bold text-ocean hover:text-oceanDark transition">
+                <span>Ler reportagem completa</span>
+                <i class="fa-solid fa-arrow-right"></i>
+              </button>
+            </div>
+          </article>
+        `;
+      }).join('');
+    }
+
+    /**
+     * =========================================================================
+     * INICIALIZAÇÃO DA APLICAÇÃO
+     * =========================================================================
+     */
+    window.addEventListener('DOMContentLoaded', () => {
+      initMap();
+      renderEcopontos();
+      renderEvents();
+      renderChecklist();
+      renderNews();
+    });
+  </script>
+</body>
+</html>
